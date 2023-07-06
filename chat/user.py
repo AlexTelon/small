@@ -1,2 +1,3 @@
-room='new'
-user='derp'
+room='general'
+user='alex'
+db_path='storage/'
