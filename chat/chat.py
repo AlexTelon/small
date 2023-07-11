@@ -1,13 +1,13 @@
-from user import room, user, db_path
+from config import room, db_path
 import sys
 from functools import partial
+from getpass import getuser
 
 db = partial(open, db_path+room)
 
 match sys.argv[1:]:
-    case ["user", user]:     print(f"{user=}")
     case ["join", room]:     print(f"{room=}")
-    case ["write", *args]:   db('a').write(f"{user=}; msg='{' '.join(args)}'\n")
+    case ["write", *args]:   db('a').write(f"user='{getuser()}'; msg='{' '.join(args)}'\n")
     case _:
         try:
             for line in db():
@@ -15,4 +15,4 @@ match sys.argv[1:]:
         except FileNotFoundError:
             print()
 
-open('user.py','w').write(f"{room=}\n{user=}\n{db_path=}")
+open('config.py','w').write(f"{room=}\n{db_path=}")
