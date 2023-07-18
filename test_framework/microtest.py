@@ -1,22 +1,22 @@
 import sys
 import os
 import importlib.util
+import inspect
+
+def get_tests(module):
+    return [f for name, f in inspect.getmembers(module, inspect.isfunction) if name.startswith('test_')]
+
+def module(file):
+    if not file.endswith('.py'):
+        return None
+    module_name = os.path.basename(file).replace('.py', '')
+    spec = importlib.util.spec_from_file_location(module_name, file)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 if __name__ == '__main__':
-    files = (file for file in set(sys.argv) if file.endswith('.py'))
-
-    for file in files:
-        # Import the module
-        module_name = os.path.basename(file).replace('.py', '')
-        spec = importlib.util.spec_from_file_location(module_name, file)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-        # Run the tests
-        for name in dir(module):
-            if not callable(getattr(module, name)):
-                continue
-            if name.startswith('test_'):
-
-                print('Running', name)
-                getattr(module, name)()
+    modules = list(map(module, set(sys.argv[1:])))
+    tests = (test for module in modules for test in get_tests(module))
+    for test in tests:
+        test()
