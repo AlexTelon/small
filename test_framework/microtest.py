@@ -14,8 +14,16 @@ def module(file):
             spec.loader.exec_module(module)
             return module
 
+def evaluate_test(test):
+    try:
+        test()
+        return True
+    except AssertionError as e:
+        print(f"'{test.__name__}' failed: {e}")
+        return False
+
 if __name__ == '__main__':
     modules = map(module, set(sys.argv[1:]))
-    tests = (test for module in modules for test in get_tests(module))
-    for test in tests:
-        test()
+    tests = [test for module in modules for test in get_tests(module)]
+    passed = sum(map(evaluate_test, tests))
+    print(f'{passed}/{len(tests)} tests passing')
